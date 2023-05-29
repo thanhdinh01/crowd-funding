@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer base {
+  body {
+    @apply font-body text-base;
+  }
+  input {
+    @apply outline-none;
+  }
+}
+
+.quill {
+  @apply border border-strokeColor rounded-xl py-[15px] px-[25px];
+  .ql-snow {
+    border: none !important;
+  }
+  .ql-toolbar.ql-snow {
+    @apply bg-text4 bg-opacity-[0.08] rounded-xl inline-block py-3 px-5 mb-[10px];
+  }
+
+  .ql-editor {
+    @apply text-text1 text-sm font-medium min-h-[250px];
+  }
+
+  .ql-editor.ql-blank::before {
+    @apply text-text4 not-italic text-sm font-medium;
+  }
+}
+
+.react-date-picker {
+  @apply px-[25px] py-[15px] rounded-xl border placeholder:text-text4 text-sm text-text1 font-medium w-full bg-transparent dark:placeholder:text-text2 dark:text-white;
+
+  .react-date-picker__wrapper {
+    @apply border-none;
+
+    .react-date-picker__inputGroup__divider {
+      padding: 0;
+    }
+    .react-date-picker__button {
+      padding: 0 6px;
+    }
+    .react-date-picker__button:enabled:hover .react-date-picker__button__icon,
+    .react-date-picker__button:enabled:focus .react-date-picker__button__icon {
+      @apply stroke-primary;
+    }
+  }
+  .react-date-picker__calendar .react-calendar {
+    @apply border border-strokeColor rounded-xl shadow;
+
+    .react-calendar__tile--active {
+      @apply bg-primary text-white rounded-lg;
+    }
+    .react-calendar__tile {
+      @apply transition-all duration-[250ms];
+    }
+    .react-calendar__tile:not(
+        .react-calendar__tile--active,
+        .react-calendar__tile--now
+      ):enabled:hover,
+    .react-calendar__tile:not(
+        .react-calendar__tile--active,
+        .react-calendar__tile--now
+      ):enabled:focus {
+      @apply bg-transparent text-primary font-bold;
+    }
+    .react-calendar__tile--now {
+      @apply bg-secondary text-white rounded-lg;
+    }
+  }
+}
+
+.Toastify__toast-body {
+  @apply text-sm text-text3;
+}
+
+.gradient-banner {
+  background: linear-gradient(
+      179.14deg,
+      rgba(32, 18, 63, 0) -7.14%,
+      #00000026 87.01%
+    ),
+    url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1174&q=80")
+      no-repeat center center;
+  background-size: cover;
+}
+
+.ReactModal__Body--open {
+  overflow: hidden;
+}
+
+.scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
