@@ -2,6 +2,7 @@ import React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import useToggleValue from "../hooks/useToggleValue";
 import LayoutAuthentication from "../layout/LayoutAuthentication";
 import { Link } from "react-router-dom";
@@ -10,6 +11,7 @@ import Label from "../components/label/Label";
 import Button from "../components/button/Button";
 import Input from "../components/input/Input";
 import IconEyeToggle from "../components/icons/IconEyeToggle";
+import { authLogin } from "../store/auth/auth-slice";
 
 const schema = yup.object().shape({
   email: yup.string().required("Email is required"),
@@ -24,23 +26,28 @@ const SignInPage = () => {
     control,
     handleSubmit,
     formState: { isSubmitting, errors, isValid },
+    reset,
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      fullname: "",
       email: "",
       password: "",
-      term: false,
     },
     resolver: yupResolver(schema),
   });
 
   const { show: togglePassword, handleToggle: handleTogglePassword } =
     useToggleValue();
+  const dispatch = useDispatch();
 
   const handleSignIn = (data) => {
     if (!isValid) return null;
-    console.log(data);
+    // console.log(data);
+    dispatch(authLogin(data));
+    reset({
+      email: "",
+      password: "",
+    });
   };
 
   return (
@@ -111,7 +118,12 @@ const SignInPage = () => {
           </Input>
         </Field>
 
-        <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full"
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+        >
           Sign in
         </Button>
       </form>

@@ -46,7 +46,7 @@ const CampaignPage = () => {
         </Button>
       </div>
       <div className="mb-10">
-        <Heading number="4" className="mb-5">
+        <Heading number={4} className="mb-5">
           Your Campaign
         </Heading>
         <div className="grid grid-cols-1 gap-10">
@@ -62,7 +62,7 @@ const CampaignPage = () => {
         </div>
       </div>
       <div>
-        <Heading number="4" className="mb-5">
+        <Heading number={4} className="mb-5">
           Your Campaign
         </Heading>
         <div className="grid grid-cols-1 gap-10">

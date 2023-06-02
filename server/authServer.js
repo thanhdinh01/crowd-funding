@@ -14,7 +14,7 @@ app.use(cors());
 const generateTokens = (payload) => {
   const { id, name } = payload;
   const accessToken = jwt.sign({ id, name }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "5m",
+    expiresIn: "30s",
   });
   const refreshToken = jwt.sign(
     { id, name },

@@ -1,21 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useController } from "react-hook-form";
 
-const Checkbox = ({
-  children,
-  onClick = () => {},
-  checked,
-  control,
-  name,
-  error,
-}) => {
+const Checkbox = ({ children, onClick = () => {}, checked, error }) => {
   // console.log(checked);
-
-  const { field } = useController({
-    control,
-    name,
-  });
 
   return (
     <div className="lg:mb-5 mb-[15px]">
@@ -25,11 +12,10 @@ const Checkbox = ({
           onClick={onClick}
         >
           <input
-            id={name}
             type="checkbox"
             className="hidden"
-            {...field}
             checked={checked}
+            onChange={() => {}}
           />
           {checked ? (
             <span>

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import LayoutAuthentication from "../layout/LayoutAuthentication";
 import { Link } from "react-router-dom";
 import Field from "../components/common/Field";
@@ -11,18 +12,15 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import IconEyeToggle from "../components/icons/IconEyeToggle";
+import { authRegister } from "../store/auth/auth-slice";
 
 const schema = yup.object().shape({
-  fullname: yup.string().required("Fullname is required"),
+  name: yup.string().required("Fullname is required"),
   email: yup.string().required("Email is required"),
   password: yup
     .string()
     .min(8, "Password must be 8 character ")
     .required("Password is required"),
-  term: yup
-    .boolean()
-    .required("The terms and conditions must be accepted.")
-    .oneOf([true], "The terms and conditions must be accepted."),
 });
 
 const SignUpPage = () => {
@@ -30,24 +28,42 @@ const SignUpPage = () => {
     control,
     handleSubmit,
     formState: { isSubmitting, errors, isValid },
+    reset,
   } = useForm({
     mode: "onChange",
     defaultValues: {
-      fullname: "",
+      name: "",
       email: "",
       password: "",
-      term: false,
     },
     resolver: yupResolver(schema),
   });
 
-  const { show: toggleTerm, handleToggle: handleToggleTerm } = useToggleValue();
+  const {
+    show: toggleTerm,
+    setShow: setToggleTerm,
+    handleToggle: handleToggleTerm,
+  } = useToggleValue();
   const { show: togglePassword, handleToggle: handleTogglePassword } =
     useToggleValue();
+  const [errorTerm, setErrorTerm] = useState(false);
+  const dispatch = useDispatch();
 
   const handleSignUp = (data) => {
+    if (!toggleTerm) {
+      setErrorTerm(!errorTerm);
+      return null;
+    }
     if (!isValid) return null;
-    console.log(data);
+    // console.log(data);
+    dispatch(authRegister(data));
+    reset({
+      name: "",
+      email: "",
+      password: "",
+    });
+    setErrorTerm(false);
+    setToggleTerm(false);
   };
 
   return (
@@ -93,13 +109,13 @@ const SignUpPage = () => {
         Or sign up with email
       </p>
       <form className="mt-[5px] lg:mt-5" onSubmit={handleSubmit(handleSignUp)}>
-        <Field error={errors?.fullname?.message}>
-          <Label name="fullname">Full Name *</Label>
+        <Field error={errors?.name?.message}>
+          <Label name="name">Full Name *</Label>
           <Input
-            error={errors?.fullname}
+            error={errors?.name}
             type="text"
             placeholder="Jhon Doe"
-            name="fullname"
+            name="name"
             control={control}
           ></Input>
         </Field>
@@ -132,9 +148,11 @@ const SignUpPage = () => {
         </Field>
 
         <Checkbox
-          error={errors?.term?.message}
-          name="term"
-          control={control}
+          error={
+            errorTerm && !toggleTerm
+              ? "The terms and conditions must be accepted."
+              : ""
+          }
           onClick={handleToggleTerm}
           checked={toggleTerm}
         >
@@ -150,7 +168,12 @@ const SignUpPage = () => {
           </p>
         </Checkbox>
 
-        <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full"
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+        >
           Create my account
         </Button>
       </form>
