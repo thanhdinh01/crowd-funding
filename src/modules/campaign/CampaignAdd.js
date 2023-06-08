@@ -17,6 +17,8 @@ import { v4 } from "uuid";
 import Textarea from "../../components/input/Textarea";
 import ImageUpload from "../../components/image/ImageUpload";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 Quill.register("modules/imageUploader", ImageUploader);
 
 const listCategory = ["real estate", "film", "camera gear"];
@@ -47,6 +49,8 @@ const CampaignAdd = () => {
     },
   });
 
+  const { user } = useSelector((state) => state.auth);
+  console.log("user", user);
   const [valueContent, setValueContent] = useState("");
   const [imageupload, setImageupload] = useState("");
   const [countries, setCountries] = useState([]);
@@ -55,6 +59,7 @@ const CampaignAdd = () => {
   const [endDate, setEndDate] = useState(new Date());
   const { filter: filterCountry, handleChange: handleChangeCountry } =
     useOnChange();
+  const navigate = useNavigate();
 
   // custom for rich text editor
   const modules = useMemo(
@@ -112,6 +117,16 @@ const CampaignAdd = () => {
     }
     fetchCountry();
   }, [filterCountry]);
+
+  useEffect(() => {
+    if (!user || !user.email) {
+      toast.info("In order to use this feature, please log in.", {
+        autoClose: 3000,
+        pauseOnHover: false,
+      });
+      navigate("/sign-in");
+    }
+  }, [navigate, user]);
 
   const handleGetSelected = (name) => {
     const value = watch(name);
@@ -288,7 +303,7 @@ const CampaignAdd = () => {
                 placeholder="Amount Prefilled"
                 name="prefilled"
               ></Input>
-              <p className="text-text3 text-sm font-normal">
+              <p className="text-sm font-normal text-text3">
                 It will help fill amount box by click, place each amount by
                 comma, ex:{" "}
                 <span className="text-base font-medium">10,20,30,40</span>
@@ -302,7 +317,7 @@ const CampaignAdd = () => {
                 placeholder="Video"
                 name="video"
               ></Input>
-              <p className="text-text3 text-sm font-normal">
+              <p className="text-sm font-normal text-text3">
                 Place Youtube or Vimeo Video URL
               </p>
             </Field>

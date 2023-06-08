@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useToggleValue from "../hooks/useToggleValue";
 import LayoutAuthentication from "../layout/LayoutAuthentication";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Field from "../components/common/Field";
 import Label from "../components/label/Label";
 import Button from "../components/button/Button";
 import Input from "../components/input/Input";
 import IconEyeToggle from "../components/icons/IconEyeToggle";
 import { authLogin } from "../store/auth/auth-slice";
+import { toast } from "react-toastify";
 
 const schema = yup.object().shape({
   email: yup.string().required("Email is required"),
@@ -36,9 +37,21 @@ const SignInPage = () => {
     resolver: yupResolver(schema),
   });
 
+  const { user } = useSelector((state) => state.auth);
   const { show: togglePassword, handleToggle: handleTogglePassword } =
     useToggleValue();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+      toast.success(`Hello ${user?.name}!`, {
+        pauseOnHover: false,
+        autoClose: 2000,
+      });
+    }
+  }, [navigate, user]);
 
   const handleSignIn = (data) => {
     if (!isValid) return null;

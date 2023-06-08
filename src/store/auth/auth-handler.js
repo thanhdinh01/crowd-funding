@@ -1,7 +1,13 @@
-import { call } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 import { toast } from "react-toastify";
-import { requestAuthLogin, requestAuthRegister } from "./auth-request";
-import { saveToken } from "../../utils/authCookie";
+import {
+  requestAuthLogin,
+  requestAuthRegister,
+  requestFetchMe,
+  requestRefreshToken,
+} from "./auth-request";
+import { logOut, saveToken } from "../../utils/authCookie";
+import { authUpdateUser } from "./auth-slice";
 
 export default function* handleRegister(action) {
   try {
@@ -22,9 +28,10 @@ export default function* handleRegister(action) {
 function* handleLogin({ payload }) {
   try {
     const response = yield call(requestAuthLogin, payload);
-    console.log("res", response);
+    // console.log("res", response);
     if (response.data) {
       saveToken(response.data.accessToken, response.data.refreshToken);
+      yield call(handleUpdateUser, { payload: response.data.accessToken });
     }
   } catch (error) {
     console.log(error);
@@ -34,4 +41,43 @@ function* handleLogin({ payload }) {
   }
 }
 
-export { handleRegister, handleLogin };
+function* handleUpdateUser({ payload }) {
+  try {
+    const res = yield call(requestFetchMe, payload);
+    console.log("res handleUpdateUser", res);
+    yield put(
+      authUpdateUser({
+        user: res.data,
+        accessToken: payload,
+      })
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function* handleRefreshToken({ payload }) {
+  console.log("payload handleRefreshToken", payload);
+  try {
+    const res = yield call(requestRefreshToken, payload);
+    console.log("handleRefreshToken res", res);
+    if (res.data) {
+      saveToken(res.data.accessToken, res.data.refreshToken);
+      yield call(handleUpdateUser, { payload: res.data.accessToken });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function* handleLogOut() {
+  yield put(
+    authUpdateUser({
+      user: undefined,
+      accessToken: null,
+    })
+  );
+  logOut();
+}
+
+export { handleRegister, handleLogin, handleRefreshToken, handleLogOut };

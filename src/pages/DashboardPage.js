@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Heading from "../components/common/Heading";
 import GridLayout from "../components/common/GridLayout";
 import CampaignItem from "../modules/campaign/CampaignItem";
 import CampaignMain from "../modules/campaign/CampaignMain";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const DashboardPage = () => {
+  const axiosPrivate = useAxiosPrivate();
+  useEffect(() => {
+    async function fetchingCampaign() {
+      try {
+        const res = await axiosPrivate.get("/api/campaigns");
+        console.log("res", res);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchingCampaign();
+  }, [axiosPrivate]);
   return (
     <>
       <Heading number={4} className="mb-5">

@@ -31,3 +31,17 @@ export const getToken = () => {
     refresh_token,
   };
 };
+
+export const logOut = () => {
+  const access_token = Cookies.get(accessToken);
+  if (access_token) {
+    Cookies.remove(accessToken, {
+      ...objCookie,
+      path: "/",
+    });
+    Cookies.remove(refreshToken, {
+      ...objCookie,
+      path: "/",
+    });
+  }
+};
