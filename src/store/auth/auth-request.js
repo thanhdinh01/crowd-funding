@@ -9,9 +9,19 @@ export const requestAuthRegister = (data) => {
 
 export const requestAuthLogin = (data) => {
   console.log("login");
-  return axios.post("/auth/login", {
-    ...data,
-  });
+  return axios.post(
+    "/auth/login",
+    {
+      ...data,
+    }
+    // {
+    //   headers: {
+    //     credentials: "include",
+    //     withCredentials: true,
+    //     "Content-Type": "application/json",
+    //   },
+    // }
+  );
 };
 export const requestFetchMe = (token) => {
   if (!token) return null;
