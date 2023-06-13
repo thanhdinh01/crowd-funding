@@ -57,13 +57,13 @@ const SignUpPage = () => {
     if (!isValid) return null;
     // console.log(data);
     dispatch(authRegister(data));
-    reset({
-      name: "",
-      email: "",
-      password: "",
-    });
-    setErrorTerm(false);
-    setToggleTerm(false);
+    // reset({
+    //   name: "",
+    //   email: "",
+    //   password: "",
+    // });
+    // setErrorTerm(false);
+    // setToggleTerm(false);
   };
 
   return (

@@ -1,16 +1,21 @@
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const fs = require("fs");
 const app = express();
 app.use(express.json());
-const fs = require("fs");
 const verifyToken = require("./middleware/auth");
-const rawdata = fs.readFileSync("db.json");
+const rawdata = fs.readFile("db.json");
 const database = JSON.parse(rawdata);
 let users = database.users;
 const cors = require("cors");
-const bcrypt = require("bcrypt");
-app.use(cors());
+const corsOptions = {
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 const generateTokens = (payload) => {
   const { id, name } = payload;
   const accessToken = jwt.sign({ id, name }, process.env.ACCESS_TOKEN_SECRET, {
@@ -37,14 +42,24 @@ function updateRefreshToken(name, refreshToken) {
     }
     return user;
   });
-  fs.writeFileSync("db.json", JSON.stringify({ ...database, users }));
+  fs.writeFile("db.json", JSON.stringify({ ...database, users }));
 }
 app.get("/me", verifyToken, (req, res) => {
-  const user = users.find((user) => {
-    return user.id === req.userId;
+  res.header("Access-Control-Allow-Origin", "*");
+  fs.readFile("db.json", "utf8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ message: "Error server" });
+    }
+    const db = JSON.parse(data);
+    const user = db.users.find((user) => user.id === req.userId);
+    if (!user) return res.sendStatus(401);
+    res.json(user);
   });
-  if (!user) return res.sendStatus(401);
-  res.json(user);
+  // const user = users.find((user) => {
+  //   return user.id === req.userId;
+  // });
+  // if (!user) return res.sendStatus(401);
+  // res.json(user);
 });
 app.post("/auth/login", (req, res) => {
   const email = req.body.email;
@@ -88,28 +103,75 @@ app.post("/token", (req, res) => {
 });
 
 app.post("/auth/register", (req, res) => {
+  console.log("users register 1", users);
   const { name, password, email, permissions } = req.body;
-  const user = users.find((user) => {
-    return user.email === email;
-  });
-  if (user) {
-    return res.sendStatus(409).json({ error: "User already exists" });
-  }
-  bcrypt.hash(password, 10, (err, hash) => {
+  // Đọc dữ liệu từ tệp db.json
+  fs.readFile("db.json", "utf8", (err, data) => {
     if (err) {
-      return;
+      return res.status(500).json({ message: "Lỗi server" });
     }
-    users.push({
-      id: users.length + 1,
-      name,
-      password: hash,
-      email,
-      refreshToken: null,
-      permissions,
+
+    const db = JSON.parse(data);
+
+    // Kiểm tra xem tên người dùng đã tồn tại chưa
+    if (db.users.find((user) => user.email === email)) {
+      return res.status(400).json({ message: "Tên người dùng đã tồn tại" });
+    }
+
+    // Hash mật khẩu
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+        return res.status(500).json({ message: "Lỗi server" });
+      }
+
+      // Thêm người dùng mới vào tệp db.json
+      db.users.push({
+        id: users.length + 1,
+        name,
+        password: hash,
+        email,
+        refreshToken: null,
+        permissions,
+      });
+
+      // Ghi dữ liệu vào tệp db.json
+      fs.writeFile("db.json", JSON.stringify(db), "utf8", (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Lỗi server" });
+        }
+
+        console.log("users register 2", db.users);
+        res.json({ message: "Đăng ký thành công" });
+      });
     });
-    fs.writeFileSync("db.json", JSON.stringify({ ...database, users }));
-    res.sendStatus(201);
   });
+  // const user = users.find((user) => {
+  //   return user.email === email;
+  // });
+  // if (user) {
+  //   return res.sendStatus(409).json({ error: "User already exists" });
+  // }
+
+  // console.log("users register 2", users);
+  // bcrypt.hash(password, 10, (err, hash) => {
+  //   if (err) {
+  //     return;
+  //   }
+  //   users.push({
+  // id: users.length + 1,
+  // name,
+  // password: hash,
+  // email,
+  // refreshToken: null,
+  // permissions,
+  //   });
+  //   console.log("users register 3", users);
+  //   console.log("before writeFileSync");
+  //   fs.writeFileSync("db.json", JSON.stringify({ ...database, users }));
+  //   console.log("after writeFileSync");
+  //   console.log("users register 4", users);
+  //   res.sendStatus(201);
+  // });
 });
 
 app.delete("/logout", verifyToken, (req, res) => {

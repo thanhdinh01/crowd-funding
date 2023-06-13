@@ -6,6 +6,7 @@ import CampaignMain from "../modules/campaign/CampaignMain";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const DashboardPage = () => {
+  console.log("dashboard page");
   const axiosPrivate = useAxiosPrivate();
   useEffect(() => {
     async function fetchingCampaign() {

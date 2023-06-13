@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,6 @@ const SignInPage = () => {
     control,
     handleSubmit,
     formState: { isSubmitting, errors, isValid },
-    reset,
   } = useForm({
     mode: "onChange",
     defaultValues: {
@@ -37,6 +36,7 @@ const SignInPage = () => {
     resolver: yupResolver(schema),
   });
 
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const { show: togglePassword, handleToggle: handleTogglePassword } =
     useToggleValue();
@@ -45,22 +45,25 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (user) {
+      setIsLoading(false);
       navigate("/");
       toast.success(`Hello ${user?.name}!`, {
         pauseOnHover: false,
         autoClose: 2000,
       });
+    } else if (!user && isSubmitting) {
+      setIsLoading(true);
     }
-  }, [navigate, user]);
+  }, [isSubmitting, navigate, user]);
 
   const handleSignIn = (data) => {
     if (!isValid) return null;
     // console.log(data);
     dispatch(authLogin(data));
-    reset({
-      email: "",
-      password: "",
-    });
+    // reset({
+    //   email: "",
+    //   password: "",
+    // });
   };
 
   return (
@@ -134,8 +137,8 @@ const SignInPage = () => {
         <Button
           type="submit"
           className="w-full"
-          isLoading={isSubmitting}
-          disabled={isSubmitting}
+          isLoading={isLoading}
+          disabled={isLoading}
         >
           Sign in
         </Button>

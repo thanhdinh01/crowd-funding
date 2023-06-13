@@ -165,12 +165,15 @@ const CampaignAdd = () => {
   const handleSubmitAddnew = async (data) => {
     console.log(data);
     try {
-      await axios.post("http://localhost:4001/api/campaigns", {
-        ...data,
-        start_date: startDate,
-        end_date: endDate,
-        story: valueContent,
-      });
+      await axios.post(
+        "https://json-crowd-funding-db.onrender.com/api/campaigns",
+        {
+          ...data,
+          start_date: startDate,
+          end_date: endDate,
+          story: valueContent,
+        }
+      );
       toast.success("Add new campaign successfully!");
     } catch (error) {
       toast.error("Add new campaign unsuccessfully");

@@ -27,6 +27,8 @@ export default function useAxiosPrivate() {
       function (response) {
         // Any status code that lie within the range of 2xx cause this function to trigger
         // Do something with response data
+
+        // response.headers("Access-Control-Allow-Origin", "*");
         return response;
       },
       function (error) {
